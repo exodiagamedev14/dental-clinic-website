@@ -1,3 +1,4 @@
+import { clinicUrl } from '../clinic'
 import { useCallback, useEffect, useState } from 'react'
 import {
   AlertTriangle,
@@ -269,7 +270,7 @@ export default function DentistPatientPage() {
         <section className="rounded-3xl bg-white p-5 soft-shadow sm:p-6">
           <div className="flex items-center gap-3"><Pill className="text-brand" size={21} /><h2 className="text-xl font-extrabold">Prescription records</h2></div>
           {prescriptions.length ? <div className="mt-5 grid gap-4 sm:grid-cols-2">{prescriptions.map((item) => <article className="overflow-hidden rounded-2xl border border-ink/8" key={item.id}>
-            <a href={`/api/dentist/prescriptions/${item.id}/image`} target="_blank" rel="noreferrer"><img alt={`Written prescription for ${item.genericName}`} className="h-44 w-full bg-cream object-contain" src={`/api/dentist/prescriptions/${item.id}/image`} /></a>
+            <a href={clinicUrl(`/api/dentist/prescriptions/${item.id}/image`)} target="_blank" rel="noreferrer"><img alt={`Written prescription for ${item.genericName}`} className="h-44 w-full bg-cream object-contain" src={clinicUrl(`/api/dentist/prescriptions/${item.id}/image`)} /></a>
             <div className="p-4"><p className="text-sm font-extrabold">Written prescription</p><p className="mt-2 text-xs font-bold text-ink/40">{formatDate(item.prescribedOn)} · {item.dentistName}</p></div>
           </article>)}</div> : <p className="mt-5 text-sm text-ink/45">No prescription images uploaded.</p>}
         </section>

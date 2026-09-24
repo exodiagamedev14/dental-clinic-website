@@ -46,6 +46,7 @@ const ids = {
 await client.connect()
 try {
   await client.query('BEGIN')
+  await client.query("SELECT set_config('app.clinic_id', '00000000-0000-4000-8000-000000000001', true)")
   await client.query(
     `INSERT INTO patients (
        id, patient_number, display_name, normalized_name, phone_e164,

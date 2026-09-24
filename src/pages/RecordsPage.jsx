@@ -1,3 +1,4 @@
+import { clinicUrl } from '../clinic'
 import { useCallback, useEffect, useState } from 'react'
 import { CalendarClock, CalendarDays, FileCheck2, FileText, Pill, ReceiptText, ShieldCheck, Stethoscope } from 'lucide-react'
 import { api } from '../api'
@@ -80,7 +81,7 @@ export default function RecordsPage() {
 
           {!!prescriptions.length && <section className="rounded-3xl bg-white p-5 soft-shadow sm:p-6" aria-label="Prescription history">
             <div className="flex items-center gap-3"><Pill className="text-brand" size={21} /><div><h2 className="text-xl font-extrabold">Written prescriptions</h2><p className="mt-1 text-xs text-ink/45">Photos uploaded by your dentist are kept with your clinic history.</p></div></div>
-            <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{prescriptions.map((item) => <article className="overflow-hidden rounded-2xl border border-ink/8" key={item.id}><a href={`/api/me/prescriptions/${item.id}/image`} target="_blank" rel="noreferrer"><img alt="Written prescription" className="h-48 w-full bg-cream object-contain" src={`/api/me/prescriptions/${item.id}/image`} /></a><div className="p-4"><p className="text-sm font-extrabold">Written prescription</p><p className="mt-2 text-xs font-bold text-ink/40">{formatDate(item.prescribedOn)} · {item.dentistName}</p></div></article>)}</div>
+            <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{prescriptions.map((item) => <article className="overflow-hidden rounded-2xl border border-ink/8" key={item.id}><a href={clinicUrl(`/api/me/prescriptions/${item.id}/image`)} target="_blank" rel="noreferrer"><img alt="Written prescription" className="h-48 w-full bg-cream object-contain" src={clinicUrl(`/api/me/prescriptions/${item.id}/image`)} /></a><div className="p-4"><p className="text-sm font-extrabold">Written prescription</p><p className="mt-2 text-xs font-bold text-ink/40">{formatDate(item.prescribedOn)} · {item.dentistName}</p></div></article>)}</div>
           </section>}
 
           {history.length ? <section className="grid gap-5 xl:grid-cols-2" aria-label="Treatment and payment history">

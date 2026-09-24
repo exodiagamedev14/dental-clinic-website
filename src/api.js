@@ -1,3 +1,5 @@
+import { clinicUrl } from './clinic'
+
 export class ApiError extends Error {
   constructor(message, { status = 0, code = 'REQUEST_FAILED', offline = false } = {}) {
     super(message)
@@ -12,7 +14,7 @@ async function request(path, { notifyUnauthorized = true, ...options } = {}) {
   let response
 
   try {
-    response = await fetch(path, {
+    response = await fetch(clinicUrl(path), {
       ...options,
       credentials: 'same-origin',
       headers: {
@@ -52,6 +54,7 @@ async function request(path, { notifyUnauthorized = true, ...options } = {}) {
 const json = (body) => JSON.stringify(body)
 
 export const api = {
+  getClinic: () => request('/api/clinic'),
   login: (details) => request('/api/auth/login', {
     method: 'POST',
     body: json(details),

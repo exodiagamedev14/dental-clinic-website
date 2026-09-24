@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { ArrowRight, Clock3, IdCard, KeyRound, LockKeyhole, Phone, Sparkles, UserRound } from 'lucide-react'
 import { api } from '../api'
 import AuthLayout from '../components/AuthLayout'
 import ClinicPhoneLink from '../components/ClinicPhoneLink'
 import { patientCredentialDetails } from '../portalData'
+import { clinicBase } from '../clinic'
 
 const services = [
   {
@@ -75,7 +76,9 @@ function ServicesPanel() {
 
 export default function LoginPage({ onAuthenticated, onStaffAuthenticated }) {
   const location = useLocation()
-  const [access, setAccess] = useState('patient')
+  const [access, setAccess] = useState(new URLSearchParams(location.search).get('access') === 'staff' ? 'staff' : 'patient')
+  const [clinic, setClinic] = useState(null)
+  const [clinicError, setClinicError] = useState('')
   const [fullName, setFullName] = useState('')
   const [patientCredential, setPatientCredential] = useState('')
   const [staffName, setStaffName] = useState('')
@@ -83,6 +86,14 @@ export default function LoginPage({ onAuthenticated, onStaffAuthenticated }) {
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [showServices, setShowServices] = useState(false)
+
+  useEffect(() => {
+    if (!clinicBase) return
+    let mounted = true
+    api.getClinic().then(({ clinic }) => { if (mounted) setClinic(clinic) })
+      .catch((error) => { if (mounted) setClinicError(error.message) })
+    return () => { mounted = false }
+  }, [])
 
   async function handleSubmit(event) {
     event.preventDefault()
@@ -137,6 +148,8 @@ export default function LoginPage({ onAuthenticated, onStaffAuthenticated }) {
       servicesActive={showServices}
     >
       <>
+      {clinic && <p className="mb-5 rounded-2xl bg-mint/65 px-4 py-3 text-sm font-bold text-brand">{clinic.name}</p>}
+      {clinicError && <p className="mb-5 text-sm text-red-700" role="alert">{clinicError}</p>}
       <div className="mb-6 grid grid-cols-2 rounded-2xl bg-cream p-1 lg:mb-4" aria-label="Choose portal access">
         {[
           ['patient', 'Patient'],
@@ -258,7 +271,7 @@ export default function LoginPage({ onAuthenticated, onStaffAuthenticated }) {
         <button
           className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand px-5 py-3.5 text-sm font-extrabold text-white shadow-lg shadow-teal-900/15 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60"
           type="submit"
-          disabled={submitting}
+          disabled={submitting || Boolean(clinicBase && !clinic)}
         >
           {submitting ? 'Signing in…' : access === 'staff' ? 'Open staff portal' : 'Open my portal'}
           {!submitting && <ArrowRight size={18} />}

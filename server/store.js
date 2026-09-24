@@ -1200,6 +1200,16 @@ export function createStore(db) {
       }))
     },
 
+    async getClinic(id) {
+      const result = await db.query('SELECT id, name FROM clinics WHERE id = $1 AND active', [id])
+      return result.rows[0] || null
+    },
+
+    async listSocialClinicIds() {
+      const result = await db.query('SELECT id FROM dental_portal.social_clinic_ids()')
+      return result.rows.map((row) => row.id)
+    },
+
     async getSocialSettings() {
       const result = await db.query(
         `SELECT s.*, c.page_id, c.page_name, c.connection_status,
@@ -1284,7 +1294,7 @@ export function createStore(db) {
            id, page_id, page_name, encrypted_access_token, connection_status,
            connected_by_staff_id, connected_at, updated_at
          ) VALUES (1, $1, $2, $3, 'connected', $4, $5, $5)
-         ON CONFLICT (id) DO UPDATE SET
+         ON CONFLICT (clinic_id, id) DO UPDATE SET
            page_id = excluded.page_id, page_name = excluded.page_name,
            encrypted_access_token = excluded.encrypted_access_token,
            connection_status = 'connected', connected_by_staff_id = excluded.connected_by_staff_id,

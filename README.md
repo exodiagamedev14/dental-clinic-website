@@ -122,6 +122,31 @@ registered patients and creates a confirmed appointment without a booking reques
 
 ## Verification
 
+Clinic onboarding from Dently creates a separate workspace and its first
+`super_admin`. The assigned salesperson opens a paid clinic in Dently's team
+portal and uses **Create clinic super admin**. Staff and patients use that
+clinic's `/c/<clinic-id>/login` link. The original root login keeps all existing
+clinic data and accounts together.
+
+Apply `migrations/027_clinic_isolation.sql` with the trusted migration command
+and deploy this dental app together, followed by Dently migration
+`015_dental_clinic_accounts.sql` and its application update. Both applications
+must use the same PostgreSQL database with their existing separate runtime roles.
+The migration makes old dental servers fail closed, so use a maintenance window
+for the migration and restart. Take a database backup first. Do not roll back to
+an older dental server after this migration.
+
+Every clinical table uses restrictive clinic row policies and composite foreign
+keys. Database access sets the clinic only for the current transaction, including
+background social publishing. New tables must retain these protections. Dently
+can execute a session-checked provisioning function but cannot read dental
+records or retrieve passwords. Pausing/removing a Dently clinic also revokes its
+dental sessions; restoring access requires a fresh login.
+
+Tests require local PostgreSQL binaries (`initdb`, `pg_ctl`, `psql`); set `PG_BIN`
+if needed. The clinic isolation test starts a disposable local database and never
+uses production credentials.
+
 Run before every deployment:
 
 ```bash

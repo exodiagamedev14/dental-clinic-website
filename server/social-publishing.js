@@ -1,5 +1,6 @@
 import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto'
 import sharp from 'sharp'
+import { currentClinicId, withClinic } from './clinic-context.js'
 
 const MAX_IMAGE_BYTES = 2 * 1024 * 1024
 const patientContent = new Set(['patient_portrait', 'before_after', 'intraoral_clinical'])
@@ -373,10 +374,15 @@ export function createSocialPublisher({ config, store, storage, fetchFn = global
     if (running || !storage) return
     running = true
     try {
-      for (let count = 0; count < 5; count += 1) {
-        const id = await store.claimNextSocialPost(now())
-        if (!id) break
-        await processPost(id)
+      const clinics = store.listSocialClinicIds ? await store.listSocialClinicIds() : [currentClinicId()]
+      for (const clinicId of clinics) {
+        await withClinic(clinicId, async () => {
+          for (let count = 0; count < 5; count += 1) {
+            const id = await store.claimNextSocialPost(now())
+            if (!id) break
+            await processPost(id)
+          }
+        })
       }
     } finally {
       running = false

@@ -1,3 +1,4 @@
+import { clinicUrl } from '../clinic'
 import { useCallback, useEffect, useState } from 'react'
 import {
   CalendarClock,
@@ -240,7 +241,7 @@ function CreateSchedule({ close, dentists, services, initialDate, onCreated }) {
           <button className="rounded-xl bg-brand px-4 text-xs font-extrabold text-white disabled:opacity-50" disabled={searching} onClick={searchPatients} type="button">{searching ? 'Searching…' : 'Search'}</button>
         </div>
         {!!patients.length && <div className="mt-3 max-h-40 space-y-2 overflow-y-auto">{patients.map((item) => <button className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left text-sm ${patient?.id === item.id ? 'border-brand bg-mint' : 'border-ink/8 hover:bg-cream'}`} key={item.id} onClick={() => { setPatient(item); setError('') }} type="button"><UserRound className="shrink-0 text-brand" size={17} /><span className="min-w-0 flex-1"><strong className="block truncate">{item.displayName}</strong><span className="text-xs text-ink/45">{item.patientNumber}</span></span></button>)}</div>}
-        {searched && !patients.length && !searching && <p className="mt-3 text-xs text-ink/45">No registered patient found. <a className="font-extrabold text-brand" href="/reception/patients">Create an account in the Patients tab</a>, then return here.</p>}
+        {searched && !patients.length && !searching && <p className="mt-3 text-xs text-ink/45">No registered patient found. <a className="font-extrabold text-brand" href={clinicUrl('/reception/patients')}>Create an account in the Patients tab</a>, then return here.</p>}
       </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">

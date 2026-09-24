@@ -20,6 +20,7 @@ import adminRoutes from './routes/admin.js'
 import { createStaffCredentialVerifier } from './staff-auth.js'
 import { createGoogleDriveStorage } from './google-drive.js'
 import { createSocialPublisher } from './social-publishing.js'
+import { currentClinicId, withClinic, rewriteClinicUrl } from './clinic-context.js'
 
 const defaultStaticDirectory = fileURLToPath(new URL('../dist/', import.meta.url))
 const stateChangingMethods = new Set(['POST', 'PUT', 'PATCH', 'DELETE'])
@@ -39,6 +40,7 @@ export async function buildApp({
   socialPublisher,
 } = {}) {
   const app = Fastify({
+    rewriteUrl: rewriteClinicUrl,
     ajv: {
       customOptions: {
         removeAdditional: false,
@@ -85,6 +87,17 @@ export async function buildApp({
     },
   })
   await app.register(rateLimit, { global: false })
+
+  app.addHook('onRequest', (request, reply, done) => {
+    withClinic(request.raw.clinicId, done)
+  })
+
+  app.get('/api/clinic', async (request, reply) => {
+    reply.header('cache-control', 'no-store')
+    const clinic = await store.getClinic(currentClinicId())
+    if (!clinic) return reply.code(404).send({ error: { code: 'CLINIC_NOT_FOUND', message: 'This clinic workspace is unavailable.' } })
+    return { clinic }
+  })
 
   app.decorateRequest('patient', null)
   app.decorateRequest('staff', null)
