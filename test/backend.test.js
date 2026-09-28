@@ -849,6 +849,28 @@ const app = await buildApp({
   logger: false,
 })
 
+test('a publisher-disabled preview never starts the injected publisher', async () => {
+  const previewConfig = loadConfig({
+    NODE_ENV: 'test',
+    DATABASE_URL: 'postgres://unused',
+    SESSION_PEPPER: config.sessionPepper,
+    PUBLIC_ORIGIN: config.publicOrigin,
+    SOCIAL_PUBLISHER_ENABLED: 'false',
+  })
+  assert.equal(previewConfig.socialPublisherEnabled, false)
+  let starts = 0
+  const preview = await buildApp({
+    config: previewConfig,
+    store: new MemoryStore(),
+    socialPublisher: { start: () => { starts += 1 }, stop: () => { starts += 1 } },
+    staticDir: false,
+    logger: false,
+  })
+  await preview.ready()
+  await preview.close()
+  assert.equal(starts, 0)
+})
+
 before(() => app.ready())
 after(() => app.close())
 

@@ -43,6 +43,10 @@ export function loadConfig(env = process.env) {
   const metaAppId = env.META_APP_ID?.trim() || null
   const metaAppSecret = env.META_APP_SECRET?.trim() || null
   const socialTokenEncryptionKeyBase64 = env.SOCIAL_TOKEN_ENCRYPTION_KEY?.trim()
+  const socialPublisherEnabledValue = env.SOCIAL_PUBLISHER_ENABLED?.trim()
+  if (socialPublisherEnabledValue && !['true', 'false'].includes(socialPublisherEnabledValue)) {
+    errors.push('SOCIAL_PUBLISHER_ENABLED must be true or false')
+  }
   let googleDriveCredentials
   let socialTokenEncryptionKey
 
@@ -196,5 +200,6 @@ export function loadConfig(env = process.env) {
     metaAppId,
     metaAppSecret,
     socialTokenEncryptionKey,
+    socialPublisherEnabled: socialPublisherEnabledValue !== 'false',
   })
 }

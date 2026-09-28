@@ -69,7 +69,10 @@ export async function buildApp({
   }
   prescriptionStorage ??= createGoogleDriveStorage(config)
   socialStorage ??= prescriptionStorage
-  if (!socialPublisher && socialStorage && typeof store.claimNextSocialPost === 'function') {
+  // Previews sharing the production database must not claim or publish live jobs.
+  if (config.socialPublisherEnabled === false) {
+    socialPublisher = undefined
+  } else if (!socialPublisher && socialStorage && typeof store.claimNextSocialPost === 'function') {
     socialPublisher = createSocialPublisher({ config, store, storage: socialStorage, now })
   }
 
